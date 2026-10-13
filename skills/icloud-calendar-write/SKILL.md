@@ -4,6 +4,10 @@ description: 在 Mac 的 iCloud 日历创建或更新个人日程，设置提醒
 license: MIT
 ---
 
+[中文](SKILL.md) | [English](SKILL.en.md)
+
+根据用户语言选择任一语言版本；两者行为相同，无需重复加载。
+
 # iCloud 日历写入
 
 通过 Mac“日历”应用向已同步的 iCloud 日历创建或更新个人事件，并返回经核验的日历标识、事件 UID、时间和提醒。可独立处理用户的日历写入请求，也可被 apple-calendar-followup 加载，作为其待办标记写入步骤。

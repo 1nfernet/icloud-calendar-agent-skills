@@ -13,21 +13,31 @@ SKILLS = ("apple-calendar-followup", "icloud-calendar-write")
 def validate():
     problems = []
     for name in SKILLS:
-        entry = ROOT / "skills" / name / "SKILL.md"
-        if not entry.is_file():
-            problems.append(f"Missing skill entry: {name}")
+        for filename in ("SKILL.md", "SKILL.en.md"):
+            entry = ROOT / "skills" / name / filename
+            if not entry.is_file():
+                problems.append(f"Missing skill entry: {name}/{filename}")
+                continue
+            content = entry.read_text(encoding="utf-8")
+            metadata = re.match(r"\A---\n(.*?)\n---\n", content, re.DOTALL)
+            if metadata is None:
+                problems.append(f"Missing frontmatter: {name}/{filename}")
+                continue
+            if f"name: {name}" not in metadata[1].splitlines():
+                problems.append(f"Skill name mismatch: {name}/{filename}")
+            if not re.search(r"^description:\s*\S", metadata[1], re.MULTILINE):
+                problems.append(f"Missing description: {name}/{filename}")
+            if "[TODO:" in content:
+                problems.append(f"Unfinished skill: {name}/{filename}")
+
+    if not (ROOT / "README.en.md").is_file():
+        problems.append("Missing English README")
+    for source in (ROOT / "skills").rglob("*.md"):
+        if source.name.endswith(".en.md"):
             continue
-        content = entry.read_text(encoding="utf-8")
-        metadata = re.match(r"\A---\n(.*?)\n---\n", content, re.DOTALL)
-        if metadata is None:
-            problems.append(f"Missing frontmatter: {name}")
-            continue
-        if f"name: {name}" not in metadata[1].splitlines():
-            problems.append(f"Skill name mismatch: {name}")
-        if not re.search(r"^description:\s*\S", metadata[1], re.MULTILINE):
-            problems.append(f"Missing description: {name}")
-        if "[TODO:" in content:
-            problems.append(f"Unfinished skill: {name}")
+        translated = source.with_name(source.stem + ".en.md")
+        if not translated.is_file():
+            problems.append(f"Missing English counterpart: {source.relative_to(ROOT)}")
 
     defaults_path = ROOT / "skills/apple-calendar-followup/assets/default-config.json"
     try:
