@@ -1,0 +1,3 @@
+interface:
+  display_name: "Apple 日历待办跟进"
+  short_description: "按各事项时区零点读取待办，失败按精确时间重试，成功邮件提醒"
